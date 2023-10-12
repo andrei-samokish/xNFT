@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.20;
 
 import "./interfaces/IBridgeMessageReceiver.sol";
@@ -8,14 +7,21 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ERCXXX.sol";
 
 /**
- * TODO: Commentaries + tests
+ * @author 4ndrei
+ * @title ApprovalSender
+ * @dev Calls zkEVM bridge gate on mainnet if mint requirements are met
+ * @notice Sends NFT mint approval to zkEVM network
  */
-contract PingSender is Ownable {
+
+contract ApprovalSender is Ownable {
     IPolygonZkEVMBridge public immutable polygonZkEVMBridge;
 
     ERCXXX public baseAsset;
     uint256 public amountRequired;
 
+    /**
+     * @dev Reciever contract address on zkEVM
+     */
     address public pingReceiver;
 
     constructor(IPolygonZkEVMBridge bridgeAddress) Ownable(msg.sender) {
@@ -32,13 +38,19 @@ contract PingSender is Ownable {
      */
     event SetReceiver(address newPingReceiver);
 
+    /**
+     * @dev Emitted when base asset and required amount change
+     */
     event AssetChanged(address baseAsset, uint256 amountRequired);
 
+    /**
+     * @dev Bridges message of user's address to Polygon if mint is verified
+     */
     function confirmOwnership() external {
         uint256 userBalance = baseAsset.balanceOf(msg.sender);
 
         if (userBalance >= amountRequired) bridgePingMessage(msg.sender);
-        else revert("PingSender: User is not allowed to mint");
+        else revert("ApprovalSender: User is not allowed to mint");
     }
 
     /**
@@ -50,10 +62,15 @@ contract PingSender is Ownable {
         emit SetReceiver(newPingReceiver);
     }
 
+    /**
+     * @notice Changes base asset and required amount in posession
+     * @param asset Addess of ERC20, ERC721 etc. contract
+     * @param amount Desired balance threshold
+     */
     function changeBaseAsset(address asset, uint256 amount) external onlyOwner {
         require(
             isContract(asset),
-            "PingSender: Asset address is not a contract"
+            "ApprovalSender: Asset address is not a contract"
         );
         baseAsset = ERCXXX(asset);
         amountRequired = amount;
@@ -74,6 +91,11 @@ contract PingSender is Ownable {
         emit PingMessage(account);
     }
 
+    /**
+     * @notice Checks if address is a contract
+     * @param addr Address to check
+     * @return bool True if address is a contract, false otherwise
+     */
     function isContract(address addr) private view returns (bool) {
         uint size;
         assembly {
