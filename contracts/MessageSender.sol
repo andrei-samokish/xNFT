@@ -1,31 +1,63 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+// SPDX-License-Identifier: AGPL-3.0
 
-import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
+pragma solidity 0.8.20;
 
-contract MessageSender {
-    address constant zkEVMBridgeAddress = 0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7;
-    //ApeCoin contract address
-    bytes4 bridgeMessageSelector = IPolygonZkEVMBridge.bridgeMessage.selector;
-    //ChainIn = 1 (for zkEVM)
-    uint32 constant zkEVMTestnetChainId = 1;
-    address public targetContract;
+import "./IBridgeMessageReceiver.sol";
+import "./IPolygonZkEVMBridge.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-    function setReceiver(address _receiver) public {
-        targetContract = _receiver;
+/**
+ * ZkEVMNFTBridge is an example contract to use the message layer of the PolygonZkEVMBridge to bridge NFTs
+ */
+contract PingSender is Ownable {
+    // Global Exit Root address
+    IPolygonZkEVMBridge public constant polygonZkEVMBridge =
+        IPolygonZkEVMBridge(0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7);
+
+    // Address in the other network that will receive the message
+    address public pingReceiver;
+
+    constructor() Ownable(msg.sender) {}
+
+    /**
+     * @dev Emitted when send a message to another network
+     */
+    event PingMessage(uint256 pingValue);
+
+    /**
+     * @dev Emitted when change the receiver
+     */
+    event SetReceiver(address newPingReceiver);
+
+    /**
+     * @notice Send a message to the other network
+     * @param destinationNetwork Network destination
+     * @param forceUpdateGlobalExitRoot Indicates if the global exit root is updated or not
+     */
+    function bridgePingMessage(
+        uint32 destinationNetwork,
+        bool forceUpdateGlobalExitRoot,
+        uint256 pingValue
+    ) public onlyOwner {
+        bytes memory pingMessage = abi.encode(pingValue);
+
+        // Bridge ping message
+        polygonZkEVMBridge.bridgeMessage(
+            destinationNetwork,
+            pingReceiver,
+            forceUpdateGlobalExitRoot,
+            pingMessage
+        );
+
+        emit PingMessage(pingValue);
     }
 
-    function sendMessage(string memory _data) public payable {
-        bytes memory _metadata = abi.encode(_data);
-        (bool success, bytes memory data) = zkEVMBridgeAddress
-        .call{value: msg.value}(
-            abi.encodeWithSelector(
-                bridgeMessageSelector,
-                zkEVMTestnetChainId,
-                targetContract,
-                true,
-                _metadata
-            )
-        );
+    /**
+     * @notice Set the receiver of the message
+     * @param newPingReceiver Address of the receiver in the other network
+     */
+    function setReceiver(address newPingReceiver) external onlyOwner {
+        pingReceiver = newPingReceiver;
+        emit SetReceiver(newPingReceiver);
     }
 }
