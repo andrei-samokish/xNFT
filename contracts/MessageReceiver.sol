@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+pragma solidity 0.8.20;
 import {IBridgeMessageReceiver} from "./interfaces/IBridgeMessageReceiver.sol";
 import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -25,7 +25,7 @@ contract MessageReceiver is IBridgeMessageReceiver, Ownable {
 
     function onMessageReceived(
         address originAddress,
-        uint32 originNetwork,
+        uint32,
         bytes memory data
     ) external payable override {
         // Can only be called by the bridge

@@ -1,55 +1,44 @@
-// SPDX-License-Identifier: AGPL-3.0
+// SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.20;
+pragma solidity ^0.8.20;
 
-import "./IBridgeMessageReceiver.sol";
-import "./IPolygonZkEVMBridge.sol";
+import "./interfaces/IBridgeMessageReceiver.sol";
+import "./interfaces/IPolygonZkEVMBridge.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/ERCXXX.sol";
 
 /**
- * ZkEVMNFTBridge is an example contract to use the message layer of the PolygonZkEVMBridge to bridge NFTs
+ * TODO: Commentaries + tests
  */
 contract PingSender is Ownable {
-    // Global Exit Root address
-    IPolygonZkEVMBridge public constant polygonZkEVMBridge =
-        IPolygonZkEVMBridge(0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7);
+    IPolygonZkEVMBridge public immutable polygonZkEVMBridge;
 
-    // Address in the other network that will receive the message
+    ERCXXX public baseAsset;
+    uint256 public amountRequired;
+
     address public pingReceiver;
 
-    constructor() Ownable(msg.sender) {}
+    constructor(IPolygonZkEVMBridge bridgeAddress) Ownable(msg.sender) {
+        polygonZkEVMBridge = bridgeAddress; //0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7 -- testnet
+    }
 
     /**
      * @dev Emitted when send a message to another network
      */
-    event PingMessage(uint256 pingValue);
+    event PingMessage(address pingValue);
 
     /**
      * @dev Emitted when change the receiver
      */
     event SetReceiver(address newPingReceiver);
 
-    /**
-     * @notice Send a message to the other network
-     * @param destinationNetwork Network destination
-     * @param forceUpdateGlobalExitRoot Indicates if the global exit root is updated or not
-     */
-    function bridgePingMessage(
-        uint32 destinationNetwork,
-        bool forceUpdateGlobalExitRoot,
-        uint256 pingValue
-    ) public onlyOwner {
-        bytes memory pingMessage = abi.encode(pingValue);
+    event AssetChanged(address baseAsset, uint256 amountRequired);
 
-        // Bridge ping message
-        polygonZkEVMBridge.bridgeMessage(
-            destinationNetwork,
-            pingReceiver,
-            forceUpdateGlobalExitRoot,
-            pingMessage
-        );
+    function confirmOwnership() external {
+        uint256 userBalance = baseAsset.balanceOf(msg.sender);
 
-        emit PingMessage(pingValue);
+        if (userBalance >= amountRequired) bridgePingMessage(msg.sender);
+        else revert("PingSender: User is not allowed to mint");
     }
 
     /**
@@ -59,5 +48,37 @@ contract PingSender is Ownable {
     function setReceiver(address newPingReceiver) external onlyOwner {
         pingReceiver = newPingReceiver;
         emit SetReceiver(newPingReceiver);
+    }
+
+    function changeBaseAsset(address asset, uint256 amount) external onlyOwner {
+        require(
+            isContract(asset),
+            "PingSender: Asset address is not a contract"
+        );
+        baseAsset = ERCXXX(asset);
+        amountRequired = amount;
+
+        emit AssetChanged(asset, amount);
+    }
+
+    /**
+     * @notice Send a message to the other network
+     * @param account Address that is allowed to mint
+     */
+    function bridgePingMessage(address account) private onlyOwner {
+        bytes memory pingMessage = abi.encode(account);
+
+        // Bridge ping message
+        polygonZkEVMBridge.bridgeMessage(1, pingReceiver, true, pingMessage);
+
+        emit PingMessage(account);
+    }
+
+    function isContract(address addr) private view returns (bool) {
+        uint size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
     }
 }
