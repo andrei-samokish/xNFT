@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.4",
+    "axios": "^1.5.1",
     "hardhat": "^2.18.0"
   }
 }
