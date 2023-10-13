@@ -4,9 +4,8 @@ pragma solidity 0.8.20;
 import {IBridgeMessageReceiver} from "./interfaces/IBridgeMessageReceiver.sol";
 import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/Permission.sol";
 
-contract ApprovalReceiver is IBridgeMessageReceiver, Ownable, Permission {
+contract ApprovalReceiver is IBridgeMessageReceiver, Ownable {
     address immutable zkEVMBridgeAddress;
     // Current network identifier
     uint32 public immutable networkID;
@@ -46,7 +45,6 @@ contract ApprovalReceiver is IBridgeMessageReceiver, Ownable, Permission {
             "MessageReceiver::onMessageReceived: Not message Sender"
         );
 
-        // Decode data
-        address account = abi.decode(data, (address));
+        _permissions[abi.decode(data, (address))] = true;
     }
 }
