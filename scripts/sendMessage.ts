@@ -28,7 +28,7 @@ async function main() {
 
   const bridgeSenderFactory =
     await ethers.getContractFactory(
-      "MessageSender",
+      "ApprovalSender",
       deployer
     );
 
@@ -37,7 +37,7 @@ async function main() {
       messageSenderContractAddress
     );
 
-  const tx = await bridgeSenderContract.sendMessage(
+  const tx = await bridgeSenderContract.bridgePingMessage(
     "test123"
   );
 

@@ -11,6 +11,7 @@ async function main() {
   let alchemyProvider: JsonRpcProvider;
   let deployer: Wallet;
   let zkEvmDeployer: Wallet;
+  let bridgeAddress: string;
   const networkType = process.env.NETWORK_TYPE as string;
   const privateKey = process.env.PRIVATE_KEY as string;
   alchemyProvider = new ethers.AlchemyProvider(
@@ -18,6 +19,8 @@ async function main() {
     process.env.ALCHEMY_API_KEY as string
   );
   if (networkType === "testnet") {
+    bridgeAddress =
+      "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7";
     zkEVMProvider = new ethers.JsonRpcProvider(
       process.env.ZK_EVM_TESTNET_RPC as string
     );
@@ -55,7 +58,7 @@ async function main() {
   // MessageSender deploying on Goerli
   const bridgeSenderFactory =
     await ethers.getContractFactory(
-      "MessageSender",
+      "ApprovalSender",
       deployer
     );
   const bridgeSenderContract =
