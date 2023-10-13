@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ERCXXX.sol";
 
 /**
- * @author 4ndrei
  * @title ApprovalSender
  * @dev Calls zkEVM bridge gate on mainnet if mint requirements are met
  * @notice Sends NFT mint approval to zkEVM network

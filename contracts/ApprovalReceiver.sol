@@ -1,26 +1,32 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.20;
+
 import {IBridgeMessageReceiver} from "./interfaces/IBridgeMessageReceiver.sol";
 import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/Permission.sol";
 
-contract MessageReceiver is IBridgeMessageReceiver, Ownable {
-    address constant zkEVMBridgeAddress =
-        0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7;
+contract ApprovalReceiver is IBridgeMessageReceiver, Ownable, Permission {
+    address immutable zkEVMBridgeAddress;
     // Current network identifier
     uint32 public immutable networkID;
 
     // Address in the other network that will send the message
     address public messageSender;
 
-    uint256 messageValue;
+    mapping(address => bool) private _permissions;
 
-    constructor() Ownable(_msgSender()) {
+    constructor(address bridge) Ownable(_msgSender()) {
+        zkEVMBridgeAddress = bridge;
         networkID = IPolygonZkEVMBridge(zkEVMBridgeAddress).networkID();
     }
 
     function setSender(address newMessageSender) external onlyOwner {
         messageSender = newMessageSender;
+    }
+
+    function getPermission(address user) public view returns (bool) {
+        return _permissions[user];
     }
 
     function onMessageReceived(
@@ -41,6 +47,6 @@ contract MessageReceiver is IBridgeMessageReceiver, Ownable {
         );
 
         // Decode data
-        messageValue = abi.decode(data, (uint256));
+        address account = abi.decode(data, (address));
     }
 }
