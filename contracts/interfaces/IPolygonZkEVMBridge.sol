@@ -116,5 +116,5 @@ interface IPolygonZkEVMBridge {
 
     function deactivateEmergencyState() external;
 
-    function networkID() external returns(uint32);
+    function networkID() external returns (uint32);
 }
