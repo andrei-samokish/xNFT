@@ -6,36 +6,53 @@ import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ApprovalReceiver is IBridgeMessageReceiver, Ownable {
-    address immutable zkEVMBridgeAddress;
-    // Current network identifier
-    uint32 public immutable networkID;
+    /**
+     * @notice Bridge address in receiving network
+     */
+    address private immutable ZKEVMBRIDGE;
 
-    // Address in the other network that will send the message
-    address public messageSender;
+    /**
+     * @notice Address of sender contract in base network
+     */
+    address private messageSender;
 
+    /**
+     * @notice Boolean value for user's allowance to mint an NFT
+     */
     mapping(address => bool) private _permissions;
 
     constructor(address bridge) Ownable(_msgSender()) {
-        zkEVMBridgeAddress = bridge;
-        networkID = IPolygonZkEVMBridge(zkEVMBridgeAddress).networkID();
+        ZKEVMBRIDGE = bridge;
     }
 
+    /**
+     * @param newMessageSender Address of new 'messageSender' variable value
+     */
     function setSender(address newMessageSender) external onlyOwner {
         messageSender = newMessageSender;
     }
 
+    /**
+     * @dev Read-function for '_permissions' mapping
+     * @param user Account to check for permission
+     */
     function getPermission(address user) public view returns (bool) {
         return _permissions[user];
     }
 
+    /**
+     * @dev Invoked on claiming message from Bridge SC
+     * @param originAddress Address of mint verifier
+     * @param data Encoded user address that is verified for mint
+     */
     function onMessageReceived(
         address originAddress,
-        uint32 originNetwork,
+        uint32,
         bytes memory data
     ) external payable override {
         // Can only be called by the bridge
         require(
-            msg.sender == zkEVMBridgeAddress,
+            msg.sender == ZKEVMBRIDGE,
             "MessageReceiver::onMessageReceived: Not PolygonZkEVMBridge"
         );
 
