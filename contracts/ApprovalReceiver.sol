@@ -30,7 +30,7 @@ contract ApprovalReceiver is IBridgeMessageReceiver, Ownable {
 
     function onMessageReceived(
         address originAddress,
-        uint32,
+        uint32 originNetwork,
         bytes memory data
     ) external payable override {
         // Can only be called by the bridge

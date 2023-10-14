@@ -16,13 +16,23 @@ async function main() {
   const privateKey = process.env.PRIVATE_KEY as string;
 
   if (networkType === "testnet") {
-    alchemyProvider = new ethers.AlchemyProvider("goerli", process.env.ALCHEMY_API_KEY as string);
-    zkEVMProvider = new ethers.JsonRpcProvider(process.env.ZK_EVM_TESTNET_RPC as string);
+    alchemyProvider = new ethers.AlchemyProvider(
+      "goerli",
+      process.env.ALCHEMY_API_KEY as string
+    );
+    zkEVMProvider = new ethers.JsonRpcProvider(
+      process.env.ZK_EVM_TESTNET_RPC as string
+    );
     deployer = new ethers.Wallet(privateKey, alchemyProvider);
     zkEvmDeployer = new ethers.Wallet(privateKey, zkEVMProvider);
   } else if (networkType === "mainnet") {
-    alchemyProvider = new ethers.AlchemyProvider("mainnet", process.env.ALCHEMY_API_KEY as string);
-    zkEVMProvider = new ethers.JsonRpcProvider(process.env.ZK_EVM_RPC as string);
+    alchemyProvider = new ethers.AlchemyProvider(
+      "mainnet",
+      process.env.ALCHEMY_API_KEY as string
+    );
+    zkEVMProvider = new ethers.JsonRpcProvider(
+      process.env.ZK_EVM_RPC as string
+    );
     deployer = new ethers.Wallet(privateKey, alchemyProvider);
     zkEvmDeployer = new ethers.Wallet(privateKey, zkEVMProvider);
   } else {
@@ -37,7 +47,10 @@ async function main() {
     deployer.address
   );
   // MessageSender deploying on Goerli
-  const bridgeSenderFactory = await ethers.getContractFactory("ApprovalSender", deployer);
+  const bridgeSenderFactory = await ethers.getContractFactory(
+    "ApprovalSender",
+    deployer
+  );
   const bridgeSenderContract = await bridgeSenderFactory.deploy(bridgeAddress);
   await bridgeSenderContract.waitForDeployment();
   let senderAddress = await bridgeSenderContract.getAddress();
@@ -45,9 +58,13 @@ async function main() {
   console.log("Message sender deployed on: ", senderAddress);
 
   // MessageReceiver deploying on zkEVM testnet
-  const bridgeReceiverFactory = await ethers.getContractFactory("ApprovalReceiver", zkEvmDeployer);
-
-  const bridgeReceiverContract = await bridgeReceiverFactory.deploy(bridgeAddress);
+  const bridgeReceiverFactory = await ethers.getContractFactory(
+    "ApprovalReceiver",
+    zkEvmDeployer
+  );
+  const bridgeReceiverContract = await bridgeReceiverFactory.deploy(
+    bridgeAddress
+  );
   await bridgeReceiverContract.waitForDeployment();
   let receiverAddress = await bridgeReceiverContract.getAddress();
 

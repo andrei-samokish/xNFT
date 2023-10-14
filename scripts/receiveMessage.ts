@@ -25,7 +25,6 @@ const mainnetBridgeAddress = "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe";
 const testnetBridgeAddress = "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7";
 
 async function main() {
-  let bridgeAddress: string;
   let zkEVMBridgeContractAddress: string;
   let baseURL: string;
   let provider: JsonRpcProvider;
@@ -56,7 +55,6 @@ async function main() {
     zkEVMBridgeAbi,
     deployer
   );
-  console.log("contract: ", bridgeContractZkeVM);
   const response: AxiosResponse<DepositsResponse> = await instance.get(
     "/bridges/" + messageReceiverContractAddress,
     {
@@ -79,7 +77,7 @@ async function main() {
         "/merkle-proof",
         {
           params: {
-            deposit_ctn: currentDeposit.deposit_cnt,
+            deposit_cnt: currentDeposit.deposit_cnt,
             net_id: currentDeposit.orig_net,
           },
         }
@@ -105,6 +103,19 @@ async function main() {
       console.log("bridge not ready for claim");
     }
   }
+  const zkEVMProvider = new ethers.JsonRpcProvider(
+    process.env.ZK_EVM_TESTNET_RPC as string
+  );
+  const zkEvmDeployer = new ethers.Wallet(privateKey, zkEVMProvider);
+  const bridgeReceiverContract = await ethers.getContractAt(
+    "ApprovalReceiver",
+    "0x8dBAe3b4194457259438DCd7599d988B0c040454",
+    zkEvmDeployer
+  );
+  console.log(
+    "permission:",
+    await bridgeReceiverContract.getPermission(ethers.ZeroAddress)
+  );
 }
 
 main().catch((e) => {
