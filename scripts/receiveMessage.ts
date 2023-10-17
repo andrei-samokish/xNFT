@@ -103,19 +103,6 @@ async function main() {
       console.log("bridge not ready for claim");
     }
   }
-  const zkEVMProvider = new ethers.JsonRpcProvider(
-    process.env.ZK_EVM_TESTNET_RPC as string
-  );
-  const zkEvmDeployer = new ethers.Wallet(privateKey, zkEVMProvider);
-  const bridgeReceiverContract = await ethers.getContractAt(
-    "ApprovalReceiver",
-    "0x8dBAe3b4194457259438DCd7599d988B0c040454",
-    zkEvmDeployer
-  );
-  console.log(
-    "permission:",
-    await bridgeReceiverContract.getPermission(ethers.ZeroAddress)
-  );
 }
 
 main().catch((e) => {
