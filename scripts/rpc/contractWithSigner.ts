@@ -1,8 +1,12 @@
 import metamaskProvider from "./metamaskProvier";
 import getContract from "../../deployment/getContract";
 import { Network } from "../../types/provider";
+import { ethers } from "ethers";
 
-async function contractWithSigner(contract: string, networkType: Network) {
+async function contractWithSigner(
+  contract: string,
+  networkType: Network
+): Promise<ethers.BaseContract> {
   await metamaskProvider?.send("eth_requestAccounts", []);
   const signer = await metamaskProvider?.getSigner();
   if (signer) {

@@ -7,13 +7,13 @@ import FunctionalBar from "./components/FunctionalBar";
 import ProgressBar from "./components/ProgressBar";
 
 function App() {
-	return (
-		<Layout>
-			<Main />
-			<FunctionalBar />
-			<ProgressBar stage="full" />
-		</Layout>
-	);
+  return (
+    <Layout>
+      <Main />
+      <FunctionalBar />
+      <ProgressBar stage="2/3" />
+    </Layout>
+  );
 }
 
 export default App;
