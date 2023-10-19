@@ -3,7 +3,7 @@ import Header from "./Header";
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (
-		<div className="xl:px-20 xl:py-12 md:px-16 md:py-8">
+		<div className="px-20 pt-12">
 			<Header />
 			{children}
 		</div>
