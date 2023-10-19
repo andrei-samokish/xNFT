@@ -4,11 +4,7 @@ import Layout from "./components/Layout";
 import Header from "./components/Header";
 
 function App() {
-  return (
-    <Layout>
-      <Header></Header>
-    </Layout>
-  );
+	return <Layout></Layout>;
 }
 
 export default App;
