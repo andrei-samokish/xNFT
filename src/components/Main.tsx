@@ -12,8 +12,8 @@ export default function Main() {
 	};
 
 	return (
-		<div className="flex flex-row justify-between w-full my-16">
-			<div className="flex flex-col gap-5">
+		<div className="flex flex-row w-full my-16 flex-wrap gap-12 justify-between max-[1235px]:justify-center">
+			<div className="flex flex-col gap-5 flex-grow max-[1235px]:items-center">
 				<p className="text-white font-bold text-lg">Powered by Polygon zkEVM</p>
 				<svg xmlns="http://www.w3.org/2000/svg" width="625" height="178" viewBox="0 0 625 178" fill="none">
 					<path
@@ -32,11 +32,11 @@ export default function Main() {
 				</svg>
 				<p className="text-white font-bold text-lg">Mint conditions: 1000 APE on Ethereum network</p>
 			</div>
-			<div className="w-[402px] rounded-xl flex flex-col">
+			<div className="rounded-xl flex flex-col w-[402px] max-[1235px]:justify-center">
 				<Slider {...settings}>
-					<div className="bg-secondary h-[254px] text-center p-[100px] rounded-xl">1</div>
-					<div className="bg-secondary h-[254px] text-center p-[100px]  rounded-xl">2</div>
-					<div className="bg-secondary h-[254px] text-center p-[100px]  rounded-xl">3</div>
+					<div className="bg-secondary h-[254px] w-[402px] text-center p-[100px] rounded-xl">1</div>
+					<div className="bg-secondary h-[254px] w-[402px] text-center p-[100px]  rounded-xl">2</div>
+					<div className="bg-secondary h-[254px] w-[402px] text-center p-[100px]  rounded-xl">3</div>
 				</Slider>
 			</div>
 		</div>

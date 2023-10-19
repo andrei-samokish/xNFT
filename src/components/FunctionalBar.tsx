@@ -3,7 +3,7 @@ import { ThreeDots } from "react-loader-spinner";
 export default function FunctionalBar() {
 	return (
 		<div className="mt-12">
-			<div className="w-full flex flex-col items-start mb-8">
+			<div className="w-full flex flex-col items-start mb-8 max-[1235px]:items-center">
 				<div className="flex items-center flex-col w-1/3 gap-8">
 					<svg width="34" height="45" viewBox="0 0 34 45" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path
@@ -11,7 +11,7 @@ export default function FunctionalBar() {
 							fill="#BB86FC"
 						/>
 					</svg>
-					<p className="font-bold text-3xl text-secondary">Verify for mint</p>
+					<p className="font-bold text-3xl text-secondary max-[1235px]:invisible max-[1235px]:h-0">Verify for mint</p>
 				</div>
 			</div>
 			<div className="w-full flex flex-row gap-3 justify-evenly">
