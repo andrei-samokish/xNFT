@@ -6,6 +6,8 @@ import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ApprovalReceiver is IBridgeMessageReceiver, Ownable {
+    event MessageReceived(address account);
+
     /**
      * @notice Bridge address in receiving network
      */
@@ -62,6 +64,10 @@ contract ApprovalReceiver is IBridgeMessageReceiver, Ownable {
             "MessageReceiver::onMessageReceived: Not message Sender"
         );
 
-        _permissions[abi.decode(data, (address))] = true;
+        address account = abi.decode(data, (address));
+
+        _permissions[account] = true;
+
+        emit MessageReceived(account);
     }
 }
