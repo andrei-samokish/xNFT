@@ -6,6 +6,7 @@ import {
   DepositsResponse,
   MerkleProofResponse,
 } from "../@types/axios-responses";
+import bridgeWithSigner from "../connection/bridgeWithSigner";
 
 export default function FunctionalBar({ stage }: FunctionalBarProps) {
   async function handleSendMessage() {
@@ -20,10 +21,13 @@ export default function FunctionalBar({ stage }: FunctionalBarProps) {
   }
 
   async function handleMint() {
-    const baseUrl = process.env.REACT_APP_RECEIVER_ADDRESS as string;
+    const contract = await bridgeWithSigner(
+      process.env.REACT_APP_NETWORK_TYPE as string
+    );
     try {
       const response: AxiosResponse<DepositsResponse> = await axios.get(
-        baseUrl,
+        ("https://bridge-api.public.zkevm-test.net/bridges/" +
+          process.env.REACT_APP_RECEIVER_ADDRESS) as string,
         {
           params: {
             limit: 100,
@@ -36,15 +40,18 @@ export default function FunctionalBar({ stage }: FunctionalBarProps) {
         const currentDeposit = depositsArray[i];
         if (currentDeposit.ready_for_claim) {
           const proofAxios: AxiosResponse<MerkleProofResponse> =
-            await axios.get("/merkle-proof", {
-              params: {
-                deposit_cnt: currentDeposit.deposit_cnt,
-                net_id: currentDeposit.orig_net,
-              },
-            });
+            await axios.get(
+              "https://bridge-api.public.zkevm-test.net/merkle-proof",
+              {
+                params: {
+                  deposit_cnt: currentDeposit.deposit_cnt,
+                  net_id: currentDeposit.orig_net,
+                },
+              }
+            );
 
           const { proof } = proofAxios.data;
-          const claimTx = await bridgeContractZkeVM.claimMessage(
+          const claimTx = await contract?.claimMessage(
             proof.merkle_proof,
             currentDeposit.deposit_cnt,
             proof.main_exit_root,
@@ -56,8 +63,8 @@ export default function FunctionalBar({ stage }: FunctionalBarProps) {
             currentDeposit.amount,
             currentDeposit.metadata
           );
-          console.log("claim message succesfully send: ", claimTx.hash);
-          await claimTx.wait();
+          console.log("claim message succesfully send: ", claimTx?.hash);
+          await claimTx?.wait();
           console.log("claim message succesfully mined");
         } else {
           console.log("bridge not ready for claim");
@@ -110,7 +117,10 @@ export default function FunctionalBar({ stage }: FunctionalBarProps) {
             />
           </div>
         ) : (
-          <span className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl">
+          <span
+            className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl cursor-pointer"
+            onClick={handleMint}
+          >
             Mint
           </span>
         )}
