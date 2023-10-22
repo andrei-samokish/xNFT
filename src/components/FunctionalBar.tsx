@@ -1,6 +1,11 @@
 import { ThreeDots } from "react-loader-spinner";
 import senderWithSigner from "../connection/senderWithSigner";
 import { FunctionalBarProps } from "../@types/props";
+import axios, { AxiosResponse } from "axios";
+import {
+  DepositsResponse,
+  MerkleProofResponse,
+} from "../@types/axios-responses";
 
 export default function FunctionalBar({ stage }: FunctionalBarProps) {
   async function handleSendMessage() {
@@ -12,6 +17,53 @@ export default function FunctionalBar({ stage }: FunctionalBarProps) {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  async function handleMint() {
+    const baseUrl = process.env.REACT_APP_RECEIVER_ADDRESS as string;
+    try {
+      const response: AxiosResponse<DepositsResponse> = await axios.get(
+        baseUrl,
+        {
+          params: {
+            limit: 100,
+            offset: 0,
+          },
+        }
+      );
+      const depositsArray = response.data.deposits;
+      for (let i = 0; i < depositsArray.length; i++) {
+        const currentDeposit = depositsArray[i];
+        if (currentDeposit.ready_for_claim) {
+          const proofAxios: AxiosResponse<MerkleProofResponse> =
+            await axios.get("/merkle-proof", {
+              params: {
+                deposit_cnt: currentDeposit.deposit_cnt,
+                net_id: currentDeposit.orig_net,
+              },
+            });
+
+          const { proof } = proofAxios.data;
+          const claimTx = await bridgeContractZkeVM.claimMessage(
+            proof.merkle_proof,
+            currentDeposit.deposit_cnt,
+            proof.main_exit_root,
+            proof.rollup_exit_root,
+            currentDeposit.orig_net,
+            currentDeposit.orig_addr,
+            currentDeposit.dest_net,
+            currentDeposit.dest_addr,
+            currentDeposit.amount,
+            currentDeposit.metadata
+          );
+          console.log("claim message succesfully send: ", claimTx.hash);
+          await claimTx.wait();
+          console.log("claim message succesfully mined");
+        } else {
+          console.log("bridge not ready for claim");
+        }
+      }
+    } catch {}
   }
 
   return (

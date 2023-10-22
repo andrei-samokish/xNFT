@@ -4,35 +4,33 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "./ApprovalReceiver.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 // xNFT is an ERC721-compliant NFT contract that extends ERC721, ERC721URIStorage, and ERC721Enumerable.
-contract XNFT is ERC721, ERC721URIStorage, ERC721Enumerable, ApprovalReceiver {
+contract XNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
     error PermissionDenied(address account);
+    event MessageReceived(address indexed account);
+
     // Counter for token IDs.
     uint public tokenIdCounter;
 
     // Maximum supply of NFTs.
     uint256 public MAX_SUPPLY = 5;
 
+    /**
+     * @notice Bridge address in receiving network
+     */
+    address private immutable ZKEVMBRIDGE;
+
+    /**
+     * @notice Address of sender contract in base network
+     */
+    address private messageSender;
+
     // Constructor initializes the contract with a name and symbol.
-    constructor(
-        address bridge
-    ) ERC721("xNFT", "X") ApprovalReceiver(bridge) {}
-
-    // safeMint allows the owner to mint NFTs safely.
-    function safeMint(address to, string calldata _tokenURI) public {
-        if (!getPermission(to)) revert PermissionDenied(to);
-
-        require(
-            ERC721Enumerable.totalSupply() < MAX_SUPPLY,
-            "All tokens have been minted"
-        );
-
-        _safeMint(to, tokenIdCounter);
-        _setTokenURI(tokenIdCounter, _tokenURI);
-
-        tokenIdCounter++;
+    constructor(address bridge) ERC721("MyToken", "MTK") Ownable(msg.sender) {
+        ZKEVMBRIDGE = bridge;
     }
 
     // _baseURI provides the base URI for token metadata.
@@ -73,5 +71,44 @@ contract XNFT is ERC721, ERC721URIStorage, ERC721Enumerable, ApprovalReceiver {
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @param newMessageSender Address of new 'messageSender' variable value
+     */
+    function setSender(address newMessageSender) external onlyOwner {
+        messageSender = newMessageSender;
+    }
+
+    function onMessageReceived(
+        address originAddress,
+        uint32,
+        bytes memory data
+    ) external payable {
+        // Can only be called by the bridge
+        require(
+            msg.sender == ZKEVMBRIDGE,
+            "MessageReceiver::onMessageReceived: Not PolygonZkEVMBridge"
+        );
+
+        // Can only be called by the sender on the other network
+        require(
+            messageSender == originAddress,
+            "MessageReceiver::onMessageReceived: Not message Sender"
+        );
+
+        address account = abi.decode(data, (address));
+
+        require(
+            ERC721Enumerable.totalSupply() < MAX_SUPPLY,
+            "All tokens have been minted"
+        );
+
+        _safeMint(account, tokenIdCounter);
+        _setTokenURI(tokenIdCounter, Strings.toString(tokenIdCounter));
+
+        tokenIdCounter++;
+
+        emit MessageReceived(account);
     }
 }

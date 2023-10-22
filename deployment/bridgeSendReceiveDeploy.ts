@@ -60,7 +60,7 @@ async function main() {
 
   // MessageReceiver deploying on zkEVM testnet
   const bridgeReceiverFactory = await ethers.getContractFactory(
-    "ApprovalReceiver",
+    "XNFT",
     zkEvmDeployer
   );
   const bridgeReceiverContract = await bridgeReceiverFactory.deploy(
