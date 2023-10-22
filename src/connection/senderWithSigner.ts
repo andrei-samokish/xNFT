@@ -25,6 +25,7 @@ async function senderWithSigner(networkType: string): Promise<ApprovalSender> {
         });
       } catch (error) {
         console.log(error);
+        throw "ERROR";
       }
     }
   }

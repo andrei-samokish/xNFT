@@ -12,6 +12,7 @@ import { DepositsResponse } from "./@types/axios-responses";
 import { useSDK } from "@metamask/sdk-react";
 
 function App() {
+  const [stage, setStage] = useState(1);
   const [accountSender, setAccountSender] = useState<string>("");
   const [bridgeMessageStatus, setBridgeMessageStatus] = useState<string>(
     "Verification is in progress"
