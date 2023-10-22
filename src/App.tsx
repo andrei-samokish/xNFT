@@ -9,10 +9,10 @@ import metamaskProvider from "./rpc/metamaskProvider";
 import getContractReceiver from "./connection/getContractReceiver";
 import axios, { AxiosResponse } from "axios";
 import { DepositsResponse } from "./@types/axios-responses";
+import { useSDK } from "@metamask/sdk-react";
 
 function App() {
   const [accountSender, setAccountSender] = useState<string>("");
-  const [metamaskSigner, setMetamaskSigner] = useState<string>("");
   const [bridgeMessageStatus, setBridgeMessageStatus] = useState<string>(
     "Verification is in progress"
   );
@@ -23,47 +23,39 @@ function App() {
     process.env.REACT_APP_NETWORK_TYPE as string
   );
 
+  const { sdk, connected, connecting, provider, chainId, account } = useSDK();
+
   useEffect(() => {
-    senderContract.once(
-      senderContract.filters["PingMessage(address)"],
-      (_accountSender: AddressLike) => {
-        if (_accountSender === metamaskSigner) {
+    senderContract?.once(
+      senderContract.filters["MessageSent(address)"],
+      (_accountSender: string) => {
+        if (_accountSender === account) {
           setAccountSender(_accountSender);
           setBridgeMessageStatus("The message has been sent");
         }
       }
     );
 
-    receiverContract.once(
+    receiverContract?.once(
       receiverContract.filters["MessageReceived(address)"],
-      (_accountReceiver: AddressLike) => {
-        if (_accountReceiver === accountSender) {
+      (_accountReceiver: string) => {
+        if (_accountReceiver === account) {
           setBridgeMessageStatus("The message has been received");
         }
       }
     );
-    (async () => {
-      const mmSignerAddress = await (
-        await metamaskProvider?.getSigner()
-      )?.getAddress();
-      console.log("signer: ", mmSignerAddress);
-      if (mmSignerAddress) {
-        setMetamaskSigner(mmSignerAddress);
-        setBridgeMessageStatus("");
-      }
-    })();
   }, []);
 
   useEffect(() => {
     let baseUrl: string;
     let t: NodeJS.Timeout;
-    if (process.env.REACT_APP_NETWORK_TYPE === "testnet") {
+
+    if (process.env.REACT_APP_NETWORK_TYPE === "testnet")
       baseUrl = process.env.REACT_APP_ZK_EVM_TESTNET_ENDPOINT as string;
-    } else if (process.env.REACT_APP_NETWORK_TYPE === "mainnet") {
+    else if (process.env.REACT_APP_NETWORK_TYPE === "mainnet")
       baseUrl = process.env.REACT_APP_ZK_EVM_TESTNET_ENDPOINT as string;
-    } else {
-      throw new Error("unknown network");
-    }
+    else throw new Error("unknown network");
+
     const fetchData = async () => {
       try {
         const response: AxiosResponse<DepositsResponse> = await axios.get(
@@ -100,11 +92,7 @@ function App() {
   return (
     <Layout>
       <Main />
-      <FunctionalBar
-        bridgeMessageStatus={bridgeMessageStatus}
-        connectedAddress={metamaskSigner}
-        addressSender={accountSender}
-      />
+      <FunctionalBar bridgeMessageStatus={bridgeMessageStatus} />
       <ProgressBar stage="2/3" />
     </Layout>
   );
