@@ -4,8 +4,8 @@ import { ethers } from "hardhat";
 import {
   DepositsResponse,
   MerkleProofResponse,
-} from "../types/axios-responses";
-import zkEVMBridgeAbi from "../types/zkEVMBridgeAbi.json";
+} from "../src/@types/axios-responses";
+import zkEVMBridgeAbi from "../src/@types/zkEVMBridgeAbi.json";
 import { Wallet, JsonRpcProvider } from "ethers";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import axios, { AxiosResponse } from "axios";
@@ -19,8 +19,8 @@ const pathSenderReceiverOutput = path.join(
 const messageReceiverContractAddress: string = require(pathSenderReceiverOutput)
   .messageReceiverContract as string;
 
-const privateKey = process.env.PRIVATE_KEY as string;
-const networkType = process.env.NETWORK_TYPE as string;
+const privateKey = process.env.REACT_APP_PRIVATE_KEY as string;
+const networkType = process.env.REACT_APP_NETWORK_TYPE as string;
 const mainnetBridgeAddress = "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe";
 const testnetBridgeAddress = "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7";
 
@@ -31,13 +31,15 @@ async function main() {
   let deployer: Wallet | HardhatEthersSigner;
   if (networkType === "testnet") {
     provider = new ethers.JsonRpcProvider(
-      process.env.ZK_EVM_TESTNET_RPC as string
+      process.env.REACT_APP_ZK_EVM_TESTNET_RPC as string
     );
     deployer = new ethers.Wallet(privateKey, provider);
     zkEVMBridgeContractAddress = testnetBridgeAddress;
     baseURL = "https://bridge-api.public.zkevm-test.net";
   } else if (networkType === "mainnet") {
-    provider = new ethers.JsonRpcProvider(process.env.ZK_EVM_RPC as string);
+    provider = new ethers.JsonRpcProvider(
+      process.env.REACT_APP_ZK_EVM_RPC as string
+    );
     deployer = new ethers.Wallet(privateKey, provider);
     zkEVMBridgeContractAddress = mainnetBridgeAddress;
     baseURL = "https://bridge-api.zkevm-rpc.com";

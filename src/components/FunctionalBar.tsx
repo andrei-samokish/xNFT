@@ -1,6 +1,24 @@
 import { ThreeDots } from "react-loader-spinner";
+import { ethers } from "ethers";
+import metamaskProvider from "../rpc/metamaskProvider";
+import senderWithSigner from "../connection/senderWithSigner";
+import { useState, useEffect } from "react";
+import { functionalBarProps } from "../@types/props";
 
-export default function FunctionalBar() {
+export default function FunctionalBar({
+  addressSender,
+  connectedAddress,
+  bridgeMessageStatus,
+}: functionalBarProps) {
+  async function handleSendMessage() {
+    let contract = await senderWithSigner(
+      process.env.REACT_APP_NETWORK_TYPE as string
+    );
+    await contract.bridgePingMessage((await metamaskProvider?.getSigner())!, {
+      gasPrice: (await metamaskProvider?.getFeeData())?.gasPrice,
+    });
+  }
+
   return (
     <div className="mt-12">
       <div className="w-full flex flex-col items-start mb-8 max-[1235px]:items-center">
@@ -24,12 +42,15 @@ export default function FunctionalBar() {
       </div>
       <div className="w-full flex flex-row gap-3 justify-evenly">
         {/** buttons */}
-        <span className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl">
+        <span
+          className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl cursor-pointer"
+          onClick={handleSendMessage}
+        >
           Verify
         </span>
         <div className="w-full flex justify-between flex-col items-center">
           <p className="text-white text-xs font-semibold">
-            Verification is in progress
+            {bridgeMessageStatus}
           </p>
           <ThreeDots
             height="40"
