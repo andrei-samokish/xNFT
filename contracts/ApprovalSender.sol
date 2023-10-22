@@ -24,13 +24,13 @@ contract ApprovalSender is Ownable {
     address public pingReceiver;
 
     constructor(IPolygonZkEVMBridge bridgeAddress) Ownable(msg.sender) {
-        polygonZkEVMBridge = bridgeAddress; //0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7 -- testnet
+        polygonZkEVMBridge = bridgeAddress;
     }
 
     /**
      * @dev Emitted when send a message to another network
      */
-    event PingMessage(address pingValue);
+    event MessageSent(address account);
 
     /**
      * @dev Emitted when change the receiver
@@ -48,7 +48,7 @@ contract ApprovalSender is Ownable {
     function confirmOwnership() external {
         uint256 userBalance = baseAsset.balanceOf(msg.sender);
 
-        if (userBalance >= amountRequired) bridgePingMessage(msg.sender);
+        if (userBalance >= amountRequired) bridgeApproval(msg.sender);
         else revert("ApprovalSender: User is not allowed to mint");
     }
 
@@ -81,13 +81,13 @@ contract ApprovalSender is Ownable {
      * @notice Send a message to the other network
      * @param account Address that is allowed to mint
      */
-    function bridgePingMessage(address account) public onlyOwner {
+    function bridgeApproval(address account) private onlyOwner {
         bytes memory pingMessage = abi.encode(account);
 
         // Bridge ping message
         polygonZkEVMBridge.bridgeMessage(1, pingReceiver, true, pingMessage);
 
-        emit PingMessage(account);
+        emit MessageSent(account);
     }
 
     /**
