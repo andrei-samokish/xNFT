@@ -1,34 +1,33 @@
 import metamaskProvider from "../rpc/metamaskProvider";
-import { ApprovalSender } from "../typechain-types";
-import getContractSender from "./getContractSender";
-import { ErrorCode, ErrorDescription, ethers } from "ethers";
+import { ApprovalReceiver } from "../typechain-types";
+import getBridgeContract from "./getBridgeContract";
+import getContractReceiver from "./getContractReceiver";
 
-async function senderWithSigner(networkType: string): Promise<ApprovalSender | undefined> {
+export default async function bridgeWithSigner(networkType: string) {
 	try {
 		await window.ethereum?.request({
 			method: "wallet_switchEthereumChain",
-			params: [{ chainId: "0x5" }],
+			params: [{ chainId: "0x5a2" }],
 		});
 
 		await metamaskProvider?.send("eth_requestAccounts", []);
 		const signer = await metamaskProvider?.getSigner();
 
 		if (signer) {
-			return getContractSender(networkType).connect(signer) as ApprovalSender;
+			return getBridgeContract().connect(signer);
 		} else {
 			throw new Error("Access to the wallet is denied:");
 		}
 	} catch (switchError: any) {
-		// This error code indicates that the chain has not been added to MetaMask.
 		if (switchError.code === 4902) {
 			try {
 				await window.ethereum?.request({
 					method: "wallet_addEthereumChain",
 					params: [
 						{
-							chainId: "0x5",
-							chainName: "Goerli",
-							rpcUrls: ["https://goerli.infura.io/v3/"],
+							chainId: "0x5a2",
+							chainName: "zkEVM Testnet",
+							rpcUrls: ["https://rpc.public.zkevm-test.net"],
 						},
 					],
 				});
@@ -41,16 +40,11 @@ async function senderWithSigner(networkType: string): Promise<ApprovalSender | u
 				await metamaskProvider?.send("eth_requestAccounts", []);
 				const signer = await metamaskProvider?.getSigner();
 
-				if (signer) {
-					return getContractSender(networkType).connect(signer) as ApprovalSender;
-				} else {
-					throw new Error("Access to the wallet is denied:");
-				}
+				if (signer) return getBridgeContract().connect(signer);
+				else throw new Error("Access to the wallet is denied:");
 			} catch (error) {
 				console.log(error);
 			}
 		}
 	}
 }
-
-export default senderWithSigner;

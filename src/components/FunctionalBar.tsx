@@ -1,15 +1,22 @@
 import { ThreeDots } from "react-loader-spinner";
 import senderWithSigner from "../connection/senderWithSigner";
 import { FunctionalBarProps } from "../@types/props";
+import receiverWithSigner from "../connection/bridgeWithSigner";
+import bridgeWithSigner from "../connection/bridgeWithSigner";
 
 export default function FunctionalBar({ stage }: FunctionalBarProps) {
 	async function handleSendMessage() {
 		try {
-			let contract = await senderWithSigner(process.env.REACT_APP_NETWORK_TYPE as string);
+			const contract = await senderWithSigner(process.env.REACT_APP_NETWORK_TYPE as string);
 			await contract!["confirmOwnership"]();
 		} catch (err) {
 			console.error(err);
 		}
+	}
+
+	async function handleMintClick() {
+		const contract = await bridgeWithSigner(process.env.REACT_APP_NETWORK_TYPE as string);
+		await contract!["claimMessage"](); // TODO
 	}
 
 	return (
@@ -47,7 +54,9 @@ export default function FunctionalBar({ stage }: FunctionalBarProps) {
 						/>
 					</div>
 				) : (
-					<span className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl">
+					<span
+						className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl"
+						onClick={handleMintClick}>
 						Mint
 					</span>
 				)}
