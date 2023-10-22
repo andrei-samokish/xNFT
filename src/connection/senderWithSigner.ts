@@ -7,7 +7,7 @@ async function senderWithSigner(networkType: string): Promise<ApprovalSender> {
 	try {
 		await window.ethereum?.request({
 			method: "wallet_switchEthereumChain",
-			params: [{ chainId: ethers.toBeHex(1442) }],
+			params: [{ chainId: "0x5" }],
 		});
 	} catch (switchError: any) {
 		// This error code indicates that the chain has not been added to MetaMask.
@@ -17,7 +17,7 @@ async function senderWithSigner(networkType: string): Promise<ApprovalSender> {
 					method: "wallet_addEthereumChain",
 					params: [
 						{
-							chainId: ethers.toBeHex(1442),
+							chainId: "0x5",
 							chainName: "zkEVM Testnet",
 							rpcUrls: ["https://rpc.public.zkevm-test.net"],
 						},
@@ -25,6 +25,7 @@ async function senderWithSigner(networkType: string): Promise<ApprovalSender> {
 				});
 			} catch (error) {
 				console.log(error);
+				throw "ERROR";
 			}
 		}
 	}
