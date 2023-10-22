@@ -1,19 +1,17 @@
 import { ThreeDots } from "react-loader-spinner";
-import { ethers } from "ethers";
-import metamaskProvider from "../rpc/metamaskProvider";
 import senderWithSigner from "../connection/senderWithSigner";
-import { useState, useEffect } from "react";
-import { functionalBarProps } from "../@types/props";
-import { useSDK } from "@metamask/sdk-react";
+import { FunctionalBarProps } from "../@types/props";
 
-export default function FunctionalBar({
-  bridgeMessageStatus,
-}: functionalBarProps) {
+export default function FunctionalBar({ stage }: FunctionalBarProps) {
   async function handleSendMessage() {
-    let contract = await senderWithSigner(
-      process.env.REACT_APP_NETWORK_TYPE as string
-    );
-    await contract["confirmOwnership"]();
+    try {
+      let contract = await senderWithSigner(
+        process.env.REACT_APP_NETWORK_TYPE as string
+      );
+      await contract!["confirmOwnership"]();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -39,29 +37,31 @@ export default function FunctionalBar({
       </div>
       <div className="w-full flex flex-row gap-3 justify-evenly">
         {/** buttons */}
-        <span
-          className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl cursor-pointer"
-          onClick={handleSendMessage}
-        >
-          Verify
-        </span>
-        <div className="w-full flex justify-between flex-col items-center">
-          <p className="text-white text-xs font-semibold">
-            {bridgeMessageStatus}
-          </p>
-          <ThreeDots
-            height="40"
-            width="80"
-            radius="9"
-            color="#BB86FC"
-            ariaLabel="three-dots-loading"
-            wrapperStyle={{}}
-            visible={true}
-          />
-        </div>
-        <span className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl">
-          Mint
-        </span>
+        {stage == 1 ? (
+          <span
+            className="w-1/3 h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl cursor-pointer"
+            onClick={handleSendMessage}
+          >
+            Verify
+          </span>
+        ) : stage == 2 ? (
+          <div className="w-full flex justify-between flex-col items-center">
+            <p className="text-white text-xs font-semibold">{stage}</p>
+            <ThreeDots
+              height="40"
+              width="80"
+              radius="9"
+              color="#BB86FC"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              visible={true}
+            />
+          </div>
+        ) : (
+          <span className="w-full h-14 bg-secondary rounded-xl font-medium flex justify-center items-center text-primary text-2xl">
+            Mint
+          </span>
+        )}
       </div>
     </div>
   );

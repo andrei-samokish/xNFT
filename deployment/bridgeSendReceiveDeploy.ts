@@ -48,17 +48,19 @@ async function main() {
     deployer.address
   );
   // MessageSender deploying on Goerli
-  const bridgeSenderFactory: ApprovalSender__factory =
-    await ethers.getContractFactory("ApprovalSender", deployer);
+  const bridgeSenderFactory = await ethers.getContractFactory(
+    "ApprovalSender",
+    deployer
+  );
   const bridgeSenderContract = await bridgeSenderFactory.deploy(bridgeAddress);
   await bridgeSenderContract.waitForDeployment();
   let senderAddress = await bridgeSenderContract.getAddress();
 
   console.log("Message sender deployed on: ", senderAddress);
 
-  // MessageReceiver (xNFT) deploying on zkEVM testnet
+  // MessageReceiver deploying on zkEVM testnet
   const bridgeReceiverFactory = await ethers.getContractFactory(
-    "XNFT",
+    "ApprovalReceiver",
     zkEvmDeployer
   );
   const bridgeReceiverContract = await bridgeReceiverFactory.deploy(
@@ -73,9 +75,14 @@ async function main() {
   await bridgeSenderContract.setReceiver(receiverAddress);
   await bridgeReceiverContract.setSender(senderAddress);
 
+  await bridgeSenderContract.changeBaseAsset(
+    "0x917e8a58FD03Dc6f21F11dD9F457C8AeD1a5C42b",
+    1
+  );
+
   const outputJson = {
     messageSenderContract: senderAddress,
-    xNFT: receiverAddress,
+    messageReceiverContract: receiverAddress,
   };
 
   const pathOutputJson = path.join(__dirname, "./senderReceiverOutput.json");
