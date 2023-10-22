@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./ApprovalReceiver.sol";
 
 // xNFT is an ERC721-compliant NFT contract that extends ERC721, ERC721URIStorage, and ERC721Enumerable.
-contract xNFT is ERC721, ERC721URIStorage, ERC721Enumerable, ApprovalReceiver {
+contract XNFT is ERC721, ERC721URIStorage, ERC721Enumerable, ApprovalReceiver {
     error PermissionDenied(address account);
     // Counter for token IDs.
     uint public tokenIdCounter;
@@ -18,7 +18,7 @@ contract xNFT is ERC721, ERC721URIStorage, ERC721Enumerable, ApprovalReceiver {
     // Constructor initializes the contract with a name and symbol.
     constructor(
         address bridge
-    ) ERC721("MyToken", "MTK") ApprovalReceiver(bridge) {}
+    ) ERC721("xNFT", "X") ApprovalReceiver(bridge) {}
 
     // safeMint allows the owner to mint NFTs safely.
     function safeMint(address to, string calldata _tokenURI) public {

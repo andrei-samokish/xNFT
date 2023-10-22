@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import path from "path";
 import { writeFileSync } from "fs";
 import { JsonRpcProvider, Wallet } from "ethers";
+import { ApprovalSender__factory, XNFT__factory } from "../src/typechain-types";
 
 config();
 
@@ -47,19 +48,17 @@ async function main() {
     deployer.address
   );
   // MessageSender deploying on Goerli
-  const bridgeSenderFactory = await ethers.getContractFactory(
-    "ApprovalSender",
-    deployer
-  );
+  const bridgeSenderFactory: ApprovalSender__factory =
+    await ethers.getContractFactory("ApprovalSender", deployer);
   const bridgeSenderContract = await bridgeSenderFactory.deploy(bridgeAddress);
   await bridgeSenderContract.waitForDeployment();
   let senderAddress = await bridgeSenderContract.getAddress();
 
   console.log("Message sender deployed on: ", senderAddress);
 
-  // MessageReceiver deploying on zkEVM testnet
+  // MessageReceiver (xNFT) deploying on zkEVM testnet
   const bridgeReceiverFactory = await ethers.getContractFactory(
-    "ApprovalReceiver",
+    "XNFT",
     zkEvmDeployer
   );
   const bridgeReceiverContract = await bridgeReceiverFactory.deploy(
@@ -76,7 +75,7 @@ async function main() {
 
   const outputJson = {
     messageSenderContract: senderAddress,
-    messageReceiverContract: receiverAddress,
+    xNFT: receiverAddress,
   };
 
   const pathOutputJson = path.join(__dirname, "./senderReceiverOutput.json");
