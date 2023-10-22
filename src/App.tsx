@@ -87,7 +87,7 @@ function App() {
     return () => {
       clearTimeout(t);
     };
-  });
+  }, [accountSender]);
 
   return (
     <Layout>
