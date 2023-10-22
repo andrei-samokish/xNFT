@@ -13,7 +13,7 @@ contract xNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
     event MessageReceived(address indexed account);
 
     // Counter for token IDs.
-    uint public tokenIdCounter;
+    uint public tokenIdCounter = 1;
 
     // Maximum supply of NFTs.
     uint256 public MAX_SUPPLY = 5;
@@ -29,13 +29,13 @@ contract xNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
     address private messageSender;
 
     // Constructor initializes the contract with a name and symbol.
-    constructor(address bridge) ERC721("MyToken", "MTK") Ownable(msg.sender) {
+    constructor(address bridge) ERC721("xNFT", "X") Ownable(msg.sender) {
         ZKEVMBRIDGE = bridge;
     }
 
     // _baseURI provides the base URI for token metadata.
     function _baseURI() internal pure override returns (string memory) {
-        return "ipfs://QmZxNzwyrVN48wnSmEpa7zM1kCCHpG3ZRbjsvRDWTuRpD6";
+        return "ipfs://Qme5bKfySCqnMdU9icBMUXPU3Y3yH29wYqkLYjNybvEyWL";
     }
 
     // tokenURI overrides the tokenURI function to support ERC721URIStorage.
@@ -100,7 +100,7 @@ contract xNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
         address account = abi.decode(data, (address));
 
         require(
-            ERC721Enumerable.totalSupply() < MAX_SUPPLY,
+            ERC721Enumerable.totalSupply() <= MAX_SUPPLY,
             "All tokens have been minted"
         );
 
