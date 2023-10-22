@@ -30,17 +30,17 @@ contract ApprovalSender is Ownable {
     /**
      * @dev Emitted when send a message to another network
      */
-    event MessageSent(address account);
+    event MessageSent(address indexed account);
 
     /**
      * @dev Emitted when change the receiver
      */
-    event SetReceiver(address newPingReceiver);
+    event SetReceiver(address indexed newPingReceiver);
 
     /**
      * @dev Emitted when base asset and required amount change
      */
-    event AssetChanged(address baseAsset, uint256 amountRequired);
+    event AssetChanged(address indexed baseAsset, uint256 amountRequired);
 
     /**
      * @dev Bridges message of user's address to Polygon if mint is verified

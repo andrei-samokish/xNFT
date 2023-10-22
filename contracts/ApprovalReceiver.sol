@@ -6,7 +6,7 @@ import {IPolygonZkEVMBridge} from "./interfaces/IPolygonZkEVMBridge.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ApprovalReceiver is IBridgeMessageReceiver, Ownable {
-    event MessageReceived(address account);
+    event MessageReceived(address indexed account);
 
     /**
      * @notice Bridge address in receiving network
