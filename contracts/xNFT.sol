@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // xNFT is an ERC721-compliant NFT contract that extends ERC721, ERC721URIStorage, and ERC721Enumerable.
-contract xNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
+contract XNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
     error PermissionDenied(address account);
     event MessageReceived(address indexed account);
 
