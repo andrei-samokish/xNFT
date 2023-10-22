@@ -93,7 +93,7 @@ function App() {
     <Layout>
       <Main />
       <FunctionalBar bridgeMessageStatus={bridgeMessageStatus} />
-      <ProgressBar stage="2/3" />
+      <ProgressBar stage="1/3" />
     </Layout>
   );
 }

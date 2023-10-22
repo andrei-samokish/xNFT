@@ -9,8 +9,6 @@ import { useSDK } from "@metamask/sdk-react";
 export default function FunctionalBar({
   bridgeMessageStatus,
 }: functionalBarProps) {
-  const { sdk, connected, connecting, provider, chainId, account } = useSDK();
-
   async function handleSendMessage() {
     let contract = await senderWithSigner(
       process.env.REACT_APP_NETWORK_TYPE as string
