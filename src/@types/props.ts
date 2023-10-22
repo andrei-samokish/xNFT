@@ -1,3 +1,3 @@
-export interface functionalBarProps {
-	bridgeMessageStatus: string;
+export interface FunctionalBarProps {
+	stage: number;
 }

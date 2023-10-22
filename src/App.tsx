@@ -21,64 +21,32 @@ function App() {
 	const { sdk, connected, connecting, provider, chainId, account } = useSDK();
 
 	useEffect(() => {
-		senderContract?.once(senderContract.filters["MessageSent(address)"], (_accountSender: string) => {
-			if (_accountSender === account) {
-				setAccountSender(_accountSender);
-				setBridgeMessageStatus("The message has been sent");
-			}
-		});
-
-		receiverContract?.once(receiverContract.filters["MessageReceived(address)"], (_accountReceiver: string) => {
-			if (_accountReceiver === account) {
-				setBridgeMessageStatus("The message has been received");
-			}
-		});
-	}, []);
-
-	useEffect(() => {
-		let baseUrl: string;
-		let t: NodeJS.Timeout;
-
-		if (process.env.REACT_APP_NETWORK_TYPE === "testnet")
-			baseUrl = process.env.REACT_APP_ZK_EVM_TESTNET_ENDPOINT as string;
-		else if (process.env.REACT_APP_NETWORK_TYPE === "mainnet")
-			baseUrl = process.env.REACT_APP_ZK_EVM_TESTNET_ENDPOINT as string;
-		else throw new Error("unknown network");
-
-		const fetchData = async () => {
+		(async () => {
 			try {
-				const response: AxiosResponse<DepositsResponse> = await axios.get(`${baseUrl}${accountSender}`, {
-					params: {
-						limit: 100,
-						offset: 0,
-					},
-				});
+				const response: AxiosResponse<DepositsResponse> = await axios.get(
+					`${process.env.REACT_APP_ZK_EVM_TESTNET_ENDPOINT as string}${accountSender}`,
+					{
+						params: {
+							limit: 100,
+							offset: 0,
+						},
+					}
+				);
+
 				const depositsArray = response.data.deposits;
-				if (depositsArray.length === 0) {
-					return;
-				}
-				if (!depositsArray[0].ready_for_claim) {
-					t = setTimeout(fetchData, 15000);
-					console.log("wait");
-				} else {
-					console.log("ready for claim!");
-				}
+
+				if (depositsArray.length === 0) setStage(1);
+				else setStage(2);
 			} catch (error) {
 				console.error(error);
 			}
-		};
-
-		fetchData();
-
-		return () => {
-			clearTimeout(t);
-		};
-	});
+		})();
+	}, []);
 
 	return (
 		<Layout>
 			<Main />
-			<FunctionalBar bridgeMessageStatus={bridgeMessageStatus} />
+			<FunctionalBar stage={stage} />
 			<ProgressBar stage="1/3" />
 		</Layout>
 	);
