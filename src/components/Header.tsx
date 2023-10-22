@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import metamaskProvider from "../rpc/metamaskProvider";
 import { MetaMaskProvider, useSDK } from "@metamask/sdk-react";
 
@@ -8,14 +10,17 @@ export default function Header() {
 	const { sdk, provider, account } = useSDK();
 
 	async function handleConnectClick() {
+		console.log("connect");
 		await sdk?.connect();
 	}
 
 	async function handleLogoutClick() {
 		sdk?.terminate();
 	}
+
 	return (
 		<div className="flex flex-row justify-between">
+			<ToastContainer className="top-16" theme={"dark"}></ToastContainer>
 			{account && (
 				<div className="flex flex-col absolute gap-2">
 					<span
@@ -44,7 +49,7 @@ export default function Header() {
 			)}
 			{!account && (
 				<div
-					className="bg-secondary block w-80 h-10 rounded-md text-center py-2 hover:cursor-pointer"
+					className="bg-secondary block w-80 h-10 rounded-md text-center py-2 cursor-pointer"
 					onClick={handleConnectClick}>
 					Connect wallet
 				</div>
