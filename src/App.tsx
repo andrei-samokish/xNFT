@@ -2,7 +2,7 @@ import Layout from "./components/Layout";
 import Main from "./components/Main";
 import FunctionalBar from "./components/FunctionalBar";
 import ProgressBar from "./components/ProgressBar";
-import { ethers } from "ethers";
+import { AddressLike, ethers } from "ethers";
 import getContractSender from "./connection/getContractSender";
 import { useState, useEffect } from "react";
 import metamaskProvider from "./rpc/metamaskProvider";
@@ -24,9 +24,9 @@ function App() {
   );
 
   useEffect(() => {
-    senderContract?.once(
+    senderContract.once(
       senderContract.filters["PingMessage(address)"],
-      (_accountSender: string) => {
+      (_accountSender: AddressLike) => {
         if (_accountSender === metamaskSigner) {
           setAccountSender(_accountSender);
           setBridgeMessageStatus("The message has been sent");
@@ -34,9 +34,9 @@ function App() {
       }
     );
 
-    receiverContract?.once(
+    receiverContract.once(
       receiverContract.filters["MessageReceived(address)"],
-      (_accountReceiver: string) => {
+      (_accountReceiver: AddressLike) => {
         if (_accountReceiver === accountSender) {
           setBridgeMessageStatus("The message has been received");
         }

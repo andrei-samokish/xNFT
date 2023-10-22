@@ -81,7 +81,7 @@ contract ApprovalSender is Ownable {
      * @notice Send a message to the other network
      * @param account Address that is allowed to mint
      */
-    function bridgePingMessage(address account) public onlyOwner {
+    function bridgePingMessage(address account) private {
         bytes memory pingMessage = abi.encode(account);
 
         // Bridge ping message
